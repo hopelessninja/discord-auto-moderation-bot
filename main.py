@@ -2,7 +2,7 @@ import discord, requests, json, os
 from discord.ext import commands, tasks
 # from keep_alive import keep_alive
 from utils.protocols import is_valid_account_number  # importing the method for checking if an account number is valid
-from utils.discord import send_embed, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
+from utils.discord import send_embed, roles_send_embed, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
 from pymongo import MongoClient  # importing the module to get a connection to database mongo
 from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
 from utils.network import fetch, make_api_url  # to fetch url and convert it into python object
@@ -118,11 +118,13 @@ def handle_registration(*, registration):  # ensure account number is not alread
 
     discord_user_id = registration['_id']
     account_number_registered = bool(USERS.find_one({'account_number': registration['account_number']}))
-
+    print(account_number_registered)
     if not account_number_registered:
+        print("true not registered")
         existing_user = USERS.find_one({'_id': discord_user_id})
 
         if existing_user:
+            print("exists")
             USERS.update_one(
                 {'_id': discord_user_id},
                 {
@@ -142,7 +144,8 @@ def handle_registration(*, registration):  # ensure account number is not alread
 
             """if results.modified_count:
                 send_user_register_confirmation()"""
-
+    else:
+        print("i dont know what i am doing with my life")
 
 
 """
@@ -297,6 +300,7 @@ async def on_raw_reaction_add(payload):  # Add custom roles
     if payload.message_id != target_message_id:
         return
 
+
     guild = client.get_guild(payload.guild_id)  # Get server information/id
 
     if payload.emoji.name == '📕':
@@ -347,24 +351,49 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
     target_message_id = 981194385716834344
     if payload.message_id != target_message_id:
         return
-
     guild = client.get_guild(payload.guild_id)  # Get server information/id
+    existing_user = USERS.find_one({'_id': payload.user_id})  # Get all the items values from a table as dictionary
+    channel = client.get_channel(980717636491030599)
+    if existing_user:
+        existing_user_acc_num = existing_user["account_number"]
+        existing_user_acc_bal = existing_user["balance"]
+        if payload.emoji.name == 'tag':
+            if existing_user_acc_bal > 0.0010:
+                role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
+                await payload.member.add_roles(role)
+            else:
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    title="Error!",
+                    description="Not enough balance in your account."
+                )
+                """embed = discord.Embed(
+                    title="error",
+                    description="not enough balance",
+                    color=discord.Colour.red(),
+                )
+                embed.set_author(name=f"User Info - {payload.user_id}"),
+                embed.set_thumbnail(
+                    url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
+                # await guild.get_channel(payload.channel_id).send("I couldn't find that role...")
+                print(channel)
+                await channel.send("okay")"""
 
-    if payload.emoji.name == 'tag':
-        role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
-        await payload.member.add_roles(role)
-    elif payload.emoji.name == '🔴':
+
+
+    """if payload.emoji.name == '🔴' and existing_user_acc_bal > 0.0015:
         role = discord.utils.get(guild.roles, name='Streamer (Premium)')
         await payload.member.add_roles(role)
-    elif payload.emoji.name == 'python':
+    if payload.emoji.name == 'python' and existing_user_acc_bal > 0.0012:
         role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
         await payload.member.add_roles(role)
-    elif payload.emoji.name == '🎬':
+    if payload.emoji.name == '🎬' and existing_user_acc_bal > 0.0012:
         role = discord.utils.get(guild.roles, name='Movies (Premium)')
         await payload.member.add_roles(role)
-    elif payload.emoji.name == '📅':
+    if payload.emoji.name == '📅' and existing_user_acc_bal > 0.0010:
         role = discord.utils.get(guild.roles, name='Events (Premium)')
-        await payload.member.add_roles(role)
+        await payload.member.add_roles(role)"""
 
 
 @client.event
@@ -482,7 +511,7 @@ async def mod_commands(ctx, user: discord.member = None):  # sends list of comma
     )
 
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='hhttps://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
 
     embed.add_field(
@@ -526,7 +555,7 @@ async def help(ctx, user:discord.member=None):  # Help embed i.e., shows all com
     )
 
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
 
     embed.add_field(
@@ -578,7 +607,7 @@ async def server_info(ctx, user:discord.member=None):  # shows server informatio
     )
 
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
     embed.add_field(
         name='Server Name',
@@ -612,7 +641,7 @@ async def user_info(ctx, user:discord.member=None):  # shows user information
     )
 
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
 
     embed.add_field(
@@ -662,7 +691,7 @@ async def user_roles(ctx, user:discord.member=None):  # shows user roles and top
     )
 
     embed.set_author(name=f"User Info - {user}"),  # get author name
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)  # footer including author name and profile icon
     embed.add_field(name=f'Roles:({len(rlist)})', value=''.join([b]), inline=True)
     embed.add_field(name='Top Role:', value=user.top_role.mention, inline=True)
@@ -683,7 +712,7 @@ async def user_count(ctx, user:discord.member=None):  # shows current user count
         timestamp = ctx.message.created_at
     )
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
     embed.add_field(name='Total count',
                     value=count,
@@ -707,7 +736,7 @@ async def crypto_help(ctx, user:discord.member=None):  # Show commands related t
     )
 
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
     embed.add_field(
         name='!register',
@@ -745,7 +774,7 @@ async def register_help(ctx, user:discord.member=None):  # Shows registration pr
         timestamp=ctx.message.created_at
     )
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
     embed.add_field(name='Step 1:',
                     value="Type '!register' in any channel, then followed by that with single space enter your blockchain account number.",
@@ -792,7 +821,7 @@ async def verify(ctx, user:discord.member=None):  # Checks if the blockchain acc
         )
         embed.set_author(name=f"User Info - {user}"),
         embed.set_thumbnail(
-            url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+            url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
         embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
         embed.add_field(name='Linked account Number:',
                         value=existing_user_acc_num,
@@ -809,7 +838,7 @@ async def verify(ctx, user:discord.member=None):  # Checks if the blockchain acc
         )
         embed.set_author(name=f"User Info - {user}"),
         embed.set_thumbnail(
-            url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+            url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
         embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
 
         await ctx.send(embed=embed)
@@ -835,7 +864,7 @@ async def balance(ctx, user:discord.member=None):  # shows current balance of th
         )
         embed.set_author(name=f"User Info - {user}"),
         embed.set_thumbnail(
-            url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+            url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
         embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
         embed.add_field(name='Current account Number:',
                         value=existing_user_acc_num,
@@ -852,7 +881,7 @@ async def balance(ctx, user:discord.member=None):  # shows current balance of th
         )
         embed.set_author(name=f"User Info - {user}"),
         embed.set_thumbnail(
-            url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+            url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
         embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
 
         await ctx.send(embed=embed)
@@ -940,7 +969,7 @@ REGISTRATION
 '''
 @client.event
 # async def on_profanities(message, word):
-#  channel = client.get_channel(980718921533493299)
+# channel = client.get_channel(980718921533493299)
 # embed = discord.Embed(title="Profanity Alert!",description=f"{message.author.name} just said ||{word}||", color=discord.Color.blurple())
 # await channel.send(embed=embed)
 '''

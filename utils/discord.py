@@ -23,9 +23,31 @@ async def send_embed(*, ctx, title, description):
     )
     embed.set_author(name=f"User Info - {user}"),
     embed.set_thumbnail(
-        url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+        url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
+
+async def roles_send_embed(*, payload, channel, title, description):
+    """
+
+    Send a simple embed with a title and description
+    """
+    user: discord.member = None
+
+    if user == None:
+        #user = client.get_user(payload.user_id)
+        user = payload.user_id
+
+    embed = discord.Embed(
+        title=title,
+        description=description,
+        color=discord.Colour.red(),
+    )
+    embed.set_author(name=f"User Info - {user}"),
+    embed.set_thumbnail(
+        url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
+    # await guild.get_channel(payload.channel_id).send("I couldn't find that role...")
+    await channel.send(embed=embed)
 
 async def send_verification_message(*, ctx, registration_account_number):  # Send verification message DM
 
@@ -43,7 +65,7 @@ async def send_verification_message(*, ctx, registration_account_number):  # Sen
     )
     embed.set_author(name=f"User Info - {user}"),
     embed.set_thumbnail(
-        url='https://cdn.discordapp.com/attachments/950257980333490256/960050435597676544/0c675a8e1061478d2b7b21b330093444.gif'),
+        url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
     embed.add_field(
         name='From',
