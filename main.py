@@ -1,11 +1,10 @@
-
 import discord, requests, json, os
 from discord.ext import commands, tasks
-from keep_alive import keep_alive
+# from keep_alive import keep_alive
 from utils.protocols import is_valid_account_number  # importing the method for checking if an account number is valid
 from utils.discord import send_embed, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
 from pymongo import MongoClient  # importing the module to get a connection to database mongo
-from config.settings import MONGO_DB_NAME, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
+from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
 from utils.network import fetch, make_api_url  # to fetch url and convert it into python object
 import pymongo
 from pymongo.errors import DuplicateKeyError
@@ -15,12 +14,12 @@ from pymongo.errors import DuplicateKeyError
 intents = discord.Intents.default()
 intents.members = True  # member intents
 
-
+print(MONGO_CLIENT_ADDRESS)
 client = commands.Bot(command_prefix='!', intents=intents)
 client.remove_command('help')
 
 
-mongo = MongoClient("mongodb+srv://usamasaleem:usamasaleem@discord-bot.pg0f5.mongodb.net/?retryWrites=true&w=majority")
+mongo = MongoClient(MONGO_CLIENT_ADDRESS)
 database = mongo[MONGO_DB_NAME]
 
 """client = pymongo.MongoClient("mongodb+srv://usamasaleem:usamasaleem@discord-bot.pg0f5.mongodb.net/?retryWrites=true&w=majority")
@@ -896,6 +895,8 @@ REGISTRATION
 
 """my_secret = os.environ['ton']
 client.run('my_secret')"""
-my_secret = os.environ['ton']
-keep_alive()
-client.run(my_secret)
+# my_secret = os.environ['ton']
+
+# keep_alive()
+secret = os.environ.get('my_secret')
+client.run(secret)
