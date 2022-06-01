@@ -340,6 +340,59 @@ async def on_raw_reaction_remove(payload):  # Remove custom roles
         role = discord.utils.get(guild.roles, name='Student')
         await member.remove_roles(role)
 
+
+@client.event
+async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
+
+    target_message_id = 981194385716834344
+    if payload.message_id != target_message_id:
+        return
+
+    guild = client.get_guild(payload.guild_id)  # Get server information/id
+
+    if payload.emoji.name == 'tag':
+        role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
+        await payload.member.add_roles(role)
+    elif payload.emoji.name == '🔴':
+        role = discord.utils.get(guild.roles, name='Streamer (Premium)')
+        await payload.member.add_roles(role)
+    elif payload.emoji.name == 'python':
+        role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
+        await payload.member.add_roles(role)
+    elif payload.emoji.name == '🎬':
+        role = discord.utils.get(guild.roles, name='Movies (Premium)')
+        await payload.member.add_roles(role)
+    elif payload.emoji.name == '📅':
+        role = discord.utils.get(guild.roles, name='Events (Premium)')
+        await payload.member.add_roles(role)
+
+
+@client.event
+async def on_raw_reaction_remove(payload):  # Remove custom PREMIUM roles
+
+    target_message_id = 981194385716834344
+    if payload.message_id != target_message_id:
+        return
+
+
+    guild = client.get_guild(payload.guild_id)  # Get server information/id
+    member = guild.get_member(payload.user_id)
+    if payload.emoji.name == 'tag':
+        role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
+        await member.remove_roles(role)
+    elif payload.emoji.name == '🔴':
+        role = discord.utils.get(guild.roles, name='Streamer (Premium)')
+        await member.remove_roles(role)
+    elif payload.emoji.name == 'python':
+        role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
+        await member.remove_roles(role)
+    elif payload.emoji.name == '🎬':
+        role = discord.utils.get(guild.roles, name='Movies (Premium)')
+        await member.remove_roles(role)
+    elif payload.emoji.name == '📅':
+        role = discord.utils.get(guild.roles, name='Events (Premium)')
+        await member.remove_roles(role)
+
 # ROLES BOT I.E., Giving custom roles -> END
 
 # CUSTOM COMMANDS/HELP AND EMBEDS I.E., Making custom commands,help commands etc. -> STARTING
