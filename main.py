@@ -14,7 +14,7 @@ from pymongo.errors import DuplicateKeyError
 intents = discord.Intents.default()
 intents.members = True  # member intents
 
-print(MONGO_CLIENT_ADDRESS)
+
 client = commands.Bot(command_prefix='!', intents=intents)
 client.remove_command('help')
 
