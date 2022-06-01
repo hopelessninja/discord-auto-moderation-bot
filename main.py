@@ -354,19 +354,38 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
     guild = client.get_guild(payload.guild_id)  # Get server information/id
     existing_user = USERS.find_one({'_id': payload.user_id})  # Get all the items values from a table as dictionary
     channel = client.get_channel(980717636491030599)
+    username = client.get_user(payload.user_id)
     if existing_user:
         existing_user_acc_num = existing_user["account_number"]
         existing_user_acc_bal = existing_user["balance"]
         if payload.emoji.name == 'tag':
             if existing_user_acc_bal > 0.0010:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0010
+                        }
+                    }
+                )
                 role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
                 await payload.member.add_roles(role)
-            else:
                 await roles_send_embed(
                     payload=payload,
                     channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
                     title="Error!",
-                    description="Not enough balance in your account."
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
                 """embed = discord.Embed(
                     title="error",
@@ -381,7 +400,123 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                 await channel.send("okay")"""
 
 
+        if payload.emoji.name == '🔴':
+            if existing_user_acc_bal > 0.0015:
 
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0015
+                        }
+                    }
+                )
+                role = discord.utils.get(guild.roles, name='Streamer (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Streamer (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+        if payload.emoji.name == 'python':
+            if existing_user_acc_bal > 0.0012:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0012
+                        }
+                    }
+                )
+                role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+
+        if payload.emoji.name == '🎬':
+            if existing_user_acc_bal > 0.0012:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0012
+                        }
+                    }
+                )
+                role = discord.utils.get(guild.roles, name='Movies (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Movies (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+        if payload.emoji.name == '📅':
+            if existing_user_acc_bal > 0.0010:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0010
+                        }
+                    }
+                )
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
     """if payload.emoji.name == '🔴' and existing_user_acc_bal > 0.0015:
         role = discord.utils.get(guild.roles, name='Streamer (Premium)')
         await payload.member.add_roles(role)
