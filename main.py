@@ -353,7 +353,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
         return
     guild = client.get_guild(payload.guild_id)  # Get server information/id
     existing_user = USERS.find_one({'_id': payload.user_id})  # Get all the items values from a table as dictionary
-    channel = client.get_channel(980717636491030599)
+    channel = client.get_channel(981856169977085962)
     username = client.get_user(payload.user_id)
     if existing_user:
         existing_user_acc_num = existing_user["account_number"]
@@ -369,6 +369,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                         }
                     }
                 )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0010
                 role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
                 await payload.member.add_roles(role)
                 await roles_send_embed(
@@ -376,7 +377,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
                 )
             else:
                 role = discord.utils.get(guild.roles, name='Clan Tags (Premium)')
@@ -399,7 +400,6 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                 print(channel)
                 await channel.send("okay")"""
 
-
         if payload.emoji.name == '🔴':
             if existing_user_acc_bal > 0.0015:
 
@@ -411,6 +411,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                         }
                     }
                 )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0015
                 role = discord.utils.get(guild.roles, name='Streamer (Premium)')
                 await payload.member.add_roles(role)
                 await roles_send_embed(
@@ -418,7 +419,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
                 )
             else:
                 role = discord.utils.get(guild.roles, name='Streamer (Premium)')
@@ -440,6 +441,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                         }
                     }
                 )
+                existing_user_new_acc_bal = existing_user["balance"]-0.0012
                 role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
                 await payload.member.add_roles(role)
                 await roles_send_embed(
@@ -447,7 +449,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
                 )
             else:
                 role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
@@ -470,6 +472,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                         }
                     }
                 )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0012
                 role = discord.utils.get(guild.roles, name='Movies (Premium)')
                 await payload.member.add_roles(role)
                 await roles_send_embed(
@@ -477,7 +480,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
                 )
             else:
                 role = discord.utils.get(guild.roles, name='Movies (Premium)')
@@ -499,6 +502,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                         }
                     }
                 )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0010
                 role = discord.utils.get(guild.roles, name='Events (Premium)')
                 await payload.member.add_roles(role)
                 await roles_send_embed(
@@ -506,7 +510,7 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_acc_bal}** ethers."
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
                 )
             else:
                 role = discord.utils.get(guild.roles, name='Events (Premium)')
@@ -517,6 +521,14 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
                     title="Error!",
                     description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
+    else:
+        await roles_send_embed(
+            payload=payload,
+            channel=channel,
+            username=username,
+            title="Error! User not found.",
+            description=f"The discord account that you are trying to make a purchase from is not linked with the Helper Bot. Please link your account with **!crypto help** command to link your discord account with the Helper Bot."
+        )
     """if payload.emoji.name == '🔴' and existing_user_acc_bal > 0.0015:
         role = discord.utils.get(guild.roles, name='Streamer (Premium)')
         await payload.member.add_roles(role)
