@@ -29,6 +29,7 @@ database = client.test"""
 DEPOSITS = database['deposits']
 REGISTRATIONS = database['registrations']
 USERS = database['users']
+GAMES = database['games']
 
 
 """get_address_url = make_api_url("account", "balance", BOT_ACCOUNT_NUMBER, tag="latest")
@@ -67,7 +68,6 @@ def check_confirmations():  # query unconfirmed deposits from database/mongodb, 
 def check_deposits():  # fetch bank transactions from bank, Insert new deposits into database
 
     next_url = make_api_url("account", "txlist", BOT_ACCOUNT_NUMBER, sort="desc", startblock=0, endblock=99999999, page=1, offset=10000)
-
     data = fetch(url=next_url, headers={})
 
     bank_transactions = data['result']
@@ -133,6 +133,7 @@ def handle_registration(*, registration):  # ensure account number is not alread
                     }
                 }
             )
+            REGISTRATIONS.delete_one({'_id': discord_user_id})
         else:
             results = USERS.insert_one({'_id': discord_user_id,
                              'account_number': registration['account_number'],
@@ -286,6 +287,8 @@ async def on_message_edit(before, after):  # see message edit history
 async def on_reaction_add(reaction, user):  # emoji reaction to messages
 
     if user == client.user:
+        return
+    if reaction.message.channel.id == 981191837471612948 or reaction.message.channel.id == 981859588011876432 or reaction.message.channel.id == 980719095236399104:
         return
     await reaction.message.channel.send(f'{user} reacted with {reaction.emoji} on **{reaction.message.content}**')
 # REACTIONS AND MESSAGE EDITS I.E., ROLES AND MESSAGE EDITS -> END
@@ -527,20 +530,8 @@ async def on_raw_reaction_add(payload):  # Add custom PREMIUM roles
             channel=channel,
             username=username,
             title="Error! User not found.",
-            description=f"The discord account that you are trying to make a purchase from is not linked with the Helper Bot. Please link your account with **!crypto help** command to link your discord account with the Helper Bot."
+            description=f"The discord account that you are trying to make a purchase from is not linked with the Helper Bot. Please use **!crypto help** command to link your discord account with the Helper Bot."
         )
-    """if payload.emoji.name == '🔴' and existing_user_acc_bal > 0.0015:
-        role = discord.utils.get(guild.roles, name='Streamer (Premium)')
-        await payload.member.add_roles(role)
-    if payload.emoji.name == 'python' and existing_user_acc_bal > 0.0012:
-        role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
-        await payload.member.add_roles(role)
-    if payload.emoji.name == '🎬' and existing_user_acc_bal > 0.0012:
-        role = discord.utils.get(guild.roles, name='Movies (Premium)')
-        await payload.member.add_roles(role)
-    if payload.emoji.name == '📅' and existing_user_acc_bal > 0.0010:
-        role = discord.utils.get(guild.roles, name='Events (Premium)')
-        await payload.member.add_roles(role)"""
 
 
 @client.event
@@ -683,9 +674,41 @@ async def mod_commands(ctx, user: discord.member = None):  # sends list of comma
     )
 
     await ctx.send(embed=embed)
-    """await ctx.author.send("The commands offered are: \n!addWord (word) - adds desired word to the blacklist \n!delWord (word) - removes desired word from the blacklist\n"
-                          "!wordList - presents the list of words blacklisted\n"
-                          "!remove (#) - removes desired number of messages from the chat\n!commands - provides the list of available commands")"""
+
+
+@client.command()
+async def addgame(ctx, game, key, user:discord.member=None):  # command for adding more game keys to mongo db
+    if user == None:
+        user = ctx.author
+    current_game = GAMES.find_one({'game': game})
+    if current_game:
+        count = current_game['count']
+        count += 1
+        key_new = "key" + str(count)
+        print(current_game)
+        GAMES.update_one(
+                {'game': current_game['game']},
+                {
+                    '$inc':{
+                        'count': 1
+                    },
+                    '$set': {
+                        key_new: key
+                    }
+                }
+            )
+        """({
+            'game': game,
+             1: key,
+            'count': 1,
+        })"""
+    else:
+        GAMES.insert_one({
+            'game': game,
+            'count': 1,
+            'key1': key,
+        })
+
 
 
 @client.command()
