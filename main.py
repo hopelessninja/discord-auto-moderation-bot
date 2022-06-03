@@ -944,60 +944,79 @@ async def on_raw_reaction_add(payload):  # Buy games
 
 @client.command()
 async def addword(ctx, word):  # to add more bad words to the black list dictionary(in json file)
-    with open("numbers.json") as json_file:
-        keys = "number"
-        data = json.load(json_file)
-        number_c = data['number']
-        data.update({keys: number_c + 1})
-        # print(data)
-        j = json.dumps(data)
-        with open('numbers.json', 'w') as f:
-            f.write(j)
-            f.close()
-        next_num = number_c + 1
+    roles = []
+    for role in ctx.author.roles:
+        roles.append(role.name)
+    if "Mod" in roles or ctx.author is ctx.guild.owner:  # checks if command writer has mod role or is a server owner
+        with open("numbers.json") as json_file:
+            keys = "number"
+            data = json.load(json_file)
+            number_c = data['number']
+            data.update({keys: number_c + 1})
+            # print(data)
+            j = json.dumps(data)
+            with open('numbers.json', 'w') as f:
+                f.write(j)
+                f.close()
+            next_num = number_c + 1
 
-    with open("black list record.json") as json_file:
-        keys = "word"
-        data = json.load(json_file)
-        data.update({keys + str(next_num): word})
-        # print(data)
-        """temp = data["blacklist"]
-        y = {keys: word}
-        temp.append(y)
-        write_json(data)"""
-        j = json.dumps(data)
-        with open('black list record.json', 'w') as f:
-            f.write(j)
-            f.close()
-    await ctx.message.channel.send("|| " + word + " || has been added to the filter.")
-    await ctx.message.delete()
+        with open("black list record.json") as json_file:
+            keys = "word"
+            data = json.load(json_file)
+            data.update({keys + str(next_num): word})
+            # print(data)
+            """temp = data["blacklist"]
+            y = {keys: word}
+            temp.append(y)
+            write_json(data)"""
+            j = json.dumps(data)
+            with open('black list record.json', 'w') as f:
+                f.write(j)
+                f.close()
+        await ctx.message.channel.send("|| " + word + " || has been added to the filter.")
+        await ctx.message.delete()
+    else:
+        await ctx.message.channel.send("This is a **moderator-only** command.")
+        await ctx.message.delete()
 
 
 @client.command()
 async def delword(ctx, word):  # removes a word from the blacklist
 
-    with open("black list record.json") as json_file:
-        data = json.load(json_file)
-    for key in data:
-        if (data[key] in word):
-            break
-    del data[key]
-    j = json.dumps(data)
-    with open('black list record.json', 'w') as f:
-        f.write(j)
-        f.close()
-    # blacklist.remove(word)
-    # blacklist.remove(word)
-    await ctx.message.channel.send("|| " + word + " || has been removed from the filter.")
-    await ctx.message.delete()
-
+    roles = []
+    for role in ctx.author.roles:
+        roles.append(role.name)
+    if "Mod" in roles or ctx.author is ctx.guild.owner:  # checks if command writer has mod role or is a server owner
+        with open("black list record.json") as json_file:
+            data = json.load(json_file)
+        for key in data:
+            if (data[key] in word):
+                break
+        del data[key]
+        j = json.dumps(data)
+        with open('black list record.json', 'w') as f:
+            f.write(j)
+            f.close()
+        # blacklist.remove(word)
+        # blacklist.remove(word)
+        await ctx.message.channel.send("|| " + word + " || has been removed from the filter.")
+        await ctx.message.delete()
+    else:
+        await ctx.message.channel.send("This is a **moderator-only** command.")
+        await ctx.message.delete()
 
 @client.command()
 async def remove(ctx, amount=0):  # purges an amount of messages
-    await ctx.channel.purge(limit=amount + 1)
-    # channel = client.get_channel(810409079481696299)
-    await ctx.message.channel.send(str(amount) + " messages were removed.")
-
+    roles = []
+    for role in ctx.author.roles:
+        roles.append(role.name)
+    if "Mod" in roles or ctx.author is ctx.guild.owner:  # checks if command writer has mod role or is a server owner
+        await ctx.channel.purge(limit=amount + 1)
+        # channel = client.get_channel(810409079481696299)
+        await ctx.message.channel.send(str(amount) + " messages were removed.")
+    else:
+        await ctx.message.channel.send("This is a **moderator-only** command.")
+        await ctx.message.delete()
 
 
 @client.command()
