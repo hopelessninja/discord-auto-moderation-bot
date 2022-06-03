@@ -11,7 +11,7 @@ client.remove_command('help')
 @client.event
 async def on_raw_reaction_add(payload):
 
-    target_message_id = 981194385716834344
+    target_message_id = 981859721852100679
     if payload.message_id != target_message_id:
         return
 

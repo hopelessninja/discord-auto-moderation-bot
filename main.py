@@ -2,7 +2,7 @@ import discord, requests, json, os
 from discord.ext import commands, tasks
 # from keep_alive import keep_alive
 from utils.protocols import is_valid_account_number  # importing the method for checking if an account number is valid
-from utils.discord import send_embed, roles_send_embed, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
+from utils.discord import send_embed, roles_send_embed, games_send_embed, send_game_verification_message, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
 from pymongo import MongoClient  # importing the module to get a connection to database mongo
 from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
 from utils.network import fetch, make_api_url  # to fetch url and convert it into python object
@@ -559,6 +559,303 @@ async def on_raw_reaction_remove(payload):  # Remove custom PREMIUM roles
     elif payload.emoji.name == '📅':
         role = discord.utils.get(guild.roles, name='Events (Premium)')
         await member.remove_roles(role)
+
+
+@client.event
+async def on_raw_reaction_add(payload):  # Buy games
+
+    target_message_id = 981859721852100679
+    if payload.message_id != target_message_id:
+        return
+    guild = client.get_guild(payload.guild_id)  # Get server information/id
+    existing_user = USERS.find_one({'_id': payload.user_id})  # Get all the items values from a table as dictionary
+    channel = client.get_channel(981856169977085962)
+    username = client.get_user(payload.user_id)
+    if existing_user:
+        existing_user_acc_num = existing_user["account_number"]
+        existing_user_acc_bal = existing_user["balance"]
+        if payload.emoji.name == 'gtav':
+            if existing_user_acc_bal > 0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                game_keys = GAMES.find_one({'game':'gtav'})
+                count = game_keys['count']
+                if count < 1:
+                    return
+                key_new = "key" + str(count)
+                key_value = game_keys[key_new]
+                GAMES.update_one(
+                    {'game': game_keys['game']},
+                    {
+                        '$inc': {
+                            'count': -1
+                        },
+                        '$unset': {
+                            key_new: ""
+                        }
+                    }
+                )
+                print(game_keys[key_new])
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                await games_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Grand Theft Auto V**. One game key has been sent to your inbox(DM). Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+                await send_game_verification_message(
+                    payload=payload,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Grand Theft Auto V**. Key => **{game_keys[key_new]}**"
+                )
+            else:
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0170** ethers needed for the **Grand Theft Auto V** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+                """embed = discord.Embed(
+                    title="error",
+                    description="not enough balance",
+                    color=discord.Colour.red(),
+                )
+                embed.set_author(name=f"User Info - {payload.user_id}"),
+                embed.set_thumbnail(
+                    url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
+                # await guild.get_channel(payload.channel_id).send("I couldn't find that role...")
+                print(channel)
+                await channel.send("okay")"""
+
+        if payload.emoji.name == 'rdr2':
+            if existing_user_acc_bal > 0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                role = discord.utils.get(guild.roles, name='Streamer (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Streamer (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+        if payload.emoji.name == 'bf42':
+            if existing_user_acc_bal > 0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                existing_user_new_acc_bal = existing_user["balance"]-0.0170
+                role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+
+        if payload.emoji.name == 'fh4':
+            if existing_user_acc_bal > 0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                role = discord.utils.get(guild.roles, name='Movies (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Movies (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+        if payload.emoji.name == 'mw':
+            if existing_user_acc_bal > -0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+        if payload.emoji.name == 'vanguard':
+            if existing_user_acc_bal > 0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+        if payload.emoji.name == 'msfs2020':
+            if existing_user_acc_bal > 0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+        if payload.emoji.name == 'halo_infinite':
+            if existing_user_acc_bal > 0.0170:
+
+                USERS.update_one(
+                    {'account_number': existing_user["account_number"]},
+                    {
+                        '$inc': {
+                            'balance': -0.0170
+                        }
+                    }
+                )
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await payload.member.add_roles(role)
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Success!",
+                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+            else:
+                role = discord.utils.get(guild.roles, name='Events (Premium)')
+                await roles_send_embed(
+                    payload=payload,
+                    channel=channel,
+                    username=username,
+                    title="Error!",
+                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                )
+    else:
+        await roles_send_embed(
+            payload=payload,
+            channel=channel,
+            username=username,
+            title="Error! User not found.",
+            description=f"The discord account that you are trying to make a purchase from is not linked with the Helper Bot. Please use **!crypto help** command to link your discord account with the Helper Bot."
+        )
 
 # ROLES BOT I.E., Giving custom roles -> END
 
