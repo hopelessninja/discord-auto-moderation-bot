@@ -97,7 +97,6 @@ def handle_deposit_confirmation(*, deposit):  # update confirmation status of de
             }
         }
     )
-
     registration = REGISTRATIONS.find_one({
         'account_number': deposit['sender']
     })
@@ -118,13 +117,10 @@ def handle_registration(*, registration):  # ensure account number is not alread
 
     discord_user_id = registration['_id']
     account_number_registered = bool(USERS.find_one({'account_number': registration['account_number']}))
-    print(account_number_registered)
     if not account_number_registered:
-        print("true not registered")
         existing_user = USERS.find_one({'_id': discord_user_id})
 
         if existing_user:
-            print("exists")
             USERS.update_one(
                 {'_id': discord_user_id},
                 {
@@ -602,7 +598,6 @@ async def on_raw_reaction_add(payload):  # Buy games
                         }
                     }
                 )
-                print(game_keys[key_new])
                 existing_user_new_acc_bal = existing_user["balance"] - 0.0170
                 await games_send_embed(
                     payload=payload,
@@ -648,54 +643,44 @@ async def on_raw_reaction_add(payload):  # Buy games
                         }
                     }
                 )
-                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
-                role = discord.utils.get(guild.roles, name='Streamer (Premium)')
-                await payload.member.add_roles(role)
-                await roles_send_embed(
-                    payload=payload,
-                    channel=channel,
-                    username=username,
-                    title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
-                )
-            else:
-                role = discord.utils.get(guild.roles, name='Streamer (Premium)')
-                await roles_send_embed(
-                    payload=payload,
-                    channel=channel,
-                    username=username,
-                    title="Error!",
-                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
-                )
-        if payload.emoji.name == 'bf42':
-            if existing_user_acc_bal > 0.0170:
-
-                USERS.update_one(
-                    {'account_number': existing_user["account_number"]},
+                game_keys = GAMES.find_one({'game': 'rdr2'})
+                count = game_keys['count']
+                if count < 1:
+                    return
+                key_new = "key" + str(count)
+                key_value = game_keys[key_new]
+                GAMES.update_one(
+                    {'game': game_keys['game']},
                     {
                         '$inc': {
-                            'balance': -0.0170
+                            'count': -1
+                        },
+                        '$unset': {
+                            key_new: ""
                         }
                     }
                 )
-                existing_user_new_acc_bal = existing_user["balance"]-0.0170
-                role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
-                await payload.member.add_roles(role)
-                await roles_send_embed(
+                existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                await games_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                    description=f"You have successfully purchased **Red Dead Redemption 2**. One game key has been sent to your inbox(DM). Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+                await send_game_verification_message(
+                    payload=payload,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Red Dead Redemption 2**. Key => **{game_keys[key_new]}**"
                 )
             else:
-                role = discord.utils.get(guild.roles, name='Python Learner (Premium)')
                 await roles_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Error!",
-                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                    description=f"Not enough balance in your account. **0.0170** ethers needed for the **Red Dead Redemption 2** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
 
         if payload.emoji.name == 'fh4':
@@ -709,27 +694,47 @@ async def on_raw_reaction_add(payload):  # Buy games
                         }
                     }
                 )
+                game_keys = GAMES.find_one({'game': 'fh4'})
+                count = game_keys['count']
+                if count < 1:
+                    return
+                key_new = "key" + str(count)
+                key_value = game_keys[key_new]
+                GAMES.update_one(
+                    {'game': game_keys['game']},
+                    {
+                        '$inc': {
+                            'count': -1
+                        },
+                        '$unset': {
+                            key_new: ""
+                        }
+                    }
+                )
                 existing_user_new_acc_bal = existing_user["balance"] - 0.0170
-                role = discord.utils.get(guild.roles, name='Movies (Premium)')
-                await payload.member.add_roles(role)
-                await roles_send_embed(
+                await games_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                    description=f"You have successfully purchased **Forza Horizon 4**. One game key has been sent to your inbox(DM). Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+                await send_game_verification_message(
+                    payload=payload,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Forza Horizon 4**. Key => **{game_keys[key_new]}**"
                 )
             else:
-                role = discord.utils.get(guild.roles, name='Movies (Premium)')
                 await roles_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Error!",
-                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                    description=f"Not enough balance in your account. **0.0170** ethers needed for the **Forza Horizon 4** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
         if payload.emoji.name == 'mw':
-            if existing_user_acc_bal > -0.0170:
+            if existing_user_acc_bal > 0.0170:
 
                 USERS.update_one(
                     {'account_number': existing_user["account_number"]},
@@ -739,24 +744,44 @@ async def on_raw_reaction_add(payload):  # Buy games
                         }
                     }
                 )
+                game_keys = GAMES.find_one({'game': 'mw'})
+                count = game_keys['count']
+                if count < 1:
+                    return
+                key_new = "key" + str(count)
+                key_value = game_keys[key_new]
+                GAMES.update_one(
+                    {'game': game_keys['game']},
+                    {
+                        '$inc': {
+                            'count': -1
+                        },
+                        '$unset': {
+                            key_new: ""
+                        }
+                    }
+                )
                 existing_user_new_acc_bal = existing_user["balance"] - 0.0170
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
-                await payload.member.add_roles(role)
-                await roles_send_embed(
+                await games_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                    description=f"You have successfully purchased **Call of Duty: Modern Warfare**. One game key has been sent to your inbox(DM). Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+                await send_game_verification_message(
+                    payload=payload,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Call of Duty: Modern Warfare**. Key => **{game_keys[key_new]}**"
                 )
             else:
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
                 await roles_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Error!",
-                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                    description=f"Not enough balance in your account. **0.0170** ethers needed for the **Call of Duty: Modern Warfare** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
         if payload.emoji.name == 'vanguard':
             if existing_user_acc_bal > 0.0170:
@@ -769,24 +794,44 @@ async def on_raw_reaction_add(payload):  # Buy games
                         }
                     }
                 )
+                game_keys = GAMES.find_one({'game': 'vanguard'})
+                count = game_keys['count']
+                if count < 1:
+                    return
+                key_new = "key" + str(count)
+                key_value = game_keys[key_new]
+                GAMES.update_one(
+                    {'game': game_keys['game']},
+                    {
+                        '$inc': {
+                            'count': -1
+                        },
+                        '$unset': {
+                            key_new: ""
+                        }
+                    }
+                )
                 existing_user_new_acc_bal = existing_user["balance"] - 0.0170
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
-                await payload.member.add_roles(role)
-                await roles_send_embed(
+                await games_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                    description=f"You have successfully purchased **Call of Duty: Vanguard**. One game key has been sent to your inbox(DM). Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+                await send_game_verification_message(
+                    payload=payload,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Call of Duty: Vanguard**. Key => **{game_keys[key_new]}**"
                 )
             else:
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
                 await roles_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Error!",
-                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                    description=f"Not enough balance in your account. **0.0170** ethers needed for the **Call of Duty: Vanguard** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
         if payload.emoji.name == 'msfs2020':
             if existing_user_acc_bal > 0.0170:
@@ -799,24 +844,44 @@ async def on_raw_reaction_add(payload):  # Buy games
                         }
                     }
                 )
+                game_keys = GAMES.find_one({'game': 'msfs2020'})
+                count = game_keys['count']
+                if count < 1:
+                    return
+                key_new = "key" + str(count)
+                key_value = game_keys[key_new]
+                GAMES.update_one(
+                    {'game': game_keys['game']},
+                    {
+                        '$inc': {
+                            'count': -1
+                        },
+                        '$unset': {
+                            key_new: ""
+                        }
+                    }
+                )
                 existing_user_new_acc_bal = existing_user["balance"] - 0.0170
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
-                await payload.member.add_roles(role)
-                await roles_send_embed(
+                await games_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                    description=f"You have successfully purchased **Microsoft Flight Simulator 2020**. One game key has been sent to your inbox(DM). Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+                await send_game_verification_message(
+                    payload=payload,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Microsoft Flight Simulator 2020**. Key => **{game_keys[key_new]}**"
                 )
             else:
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
                 await roles_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Error!",
-                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                    description=f"Not enough balance in your account. **0.0170** ethers needed for the **Microsoft Flight Simulator 2020** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
         if payload.emoji.name == 'halo_infinite':
             if existing_user_acc_bal > 0.0170:
@@ -829,33 +894,45 @@ async def on_raw_reaction_add(payload):  # Buy games
                         }
                     }
                 )
+                game_keys = GAMES.find_one({'game': 'halo_infinite'})
+                count = game_keys['count']
+                if count < 1:
+                    return
+                key_new = "key" + str(count)
+                key_value = game_keys[key_new]
+                GAMES.update_one(
+                    {'game': game_keys['game']},
+                    {
+                        '$inc': {
+                            'count': -1
+                        },
+                        '$unset': {
+                            key_new: ""
+                        }
+                    }
+                )
                 existing_user_new_acc_bal = existing_user["balance"] - 0.0170
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
-                await payload.member.add_roles(role)
-                await roles_send_embed(
+                await games_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Success!",
-                    description=f"You now have the **{role}** role. Your current balance is **{existing_user_new_acc_bal}** ethers."
+                    description=f"You have successfully purchased ** Halo Infinite**. One game key has been sent to your inbox(DM). Your current balance is **{existing_user_new_acc_bal}** ethers."
+                )
+                await send_game_verification_message(
+                    payload=payload,
+                    username=username,
+                    title="Success!",
+                    description=f"You have successfully purchased **Halo Infinite**. Key => **{game_keys[key_new]}**"
                 )
             else:
-                role = discord.utils.get(guild.roles, name='Events (Premium)')
                 await roles_send_embed(
                     payload=payload,
                     channel=channel,
                     username=username,
                     title="Error!",
-                    description=f"Not enough balance in your account. **0.0010** ethers needed for the **{role}** role. Your balance is **{existing_user_acc_bal}** ethers."
+                    description=f"Not enough balance in your account. **0.0170** ethers needed for the ** Halo Infinite** role. Your balance is **{existing_user_acc_bal}** ethers."
                 )
-    else:
-        await roles_send_embed(
-            payload=payload,
-            channel=channel,
-            username=username,
-            title="Error! User not found.",
-            description=f"The discord account that you are trying to make a purchase from is not linked with the Helper Bot. Please use **!crypto help** command to link your discord account with the Helper Bot."
-        )
 
 # ROLES BOT I.E., Giving custom roles -> END
 
@@ -982,7 +1059,6 @@ async def addgame(ctx, game, key, user:discord.member=None):  # command for addi
         count = current_game['count']
         count += 1
         key_new = "key" + str(count)
-        print(current_game)
         GAMES.update_one(
                 {'game': current_game['game']},
                 {
@@ -1005,6 +1081,9 @@ async def addgame(ctx, game, key, user:discord.member=None):  # command for addi
             'count': 1,
             'key1': key,
         })
+    await ctx.message.delete()
+    await ctx.message.channel.send(f"New **{game}** key added!")
+
 
 
 
