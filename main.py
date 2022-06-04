@@ -1,6 +1,6 @@
 import discord, requests, json, os
 from discord.ext import commands, tasks
-# from keep_alive import keep_alive
+from keep_alive import keep_alive
 from utils.protocols import is_valid_account_number  # importing the method for checking if an account number is valid
 from utils.discord import send_embed, roles_send_embed, games_send_embed, send_game_verification_message, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
 from pymongo import MongoClient  # importing the module to get a connection to database mongo
@@ -1547,6 +1547,6 @@ REGISTRATION
 client.run('my_secret')"""
 # my_secret = os.environ['ton']
 
-# keep_alive()
+keep_alive()
 secret = os.environ.get('my_secret')
 client.run(secret)
