@@ -35,7 +35,7 @@ GAMES = database['games']
 """get_address_url = make_api_url("account", "balance", BOT_ACCOUNT_NUMBER, tag="latest")
 print(get_address_url)"""
 
-def check_confirmations():  # query unconfirmed deposits from database/mongodb, check bank for confirmation status
+async def check_confirmations():  # query unconfirmed deposits from database/mongodb, check bank for confirmation status
 
     unconfirmed_deposits = DEPOSITS.find({
         'is_confirmed': False
@@ -57,7 +57,7 @@ def check_confirmations():  # query unconfirmed deposits from database/mongodb, 
             confirmations = True
             if confirmations:  # handle deposit confirmations
                 # print(f'{confirmations} okay') # to check for if confirmation is True or false
-                handle_deposit_confirmation(deposit=deposit)
+                await handle_deposit_confirmation(deposit=deposit)
 
         except Exception:
             pass
@@ -87,7 +87,7 @@ def check_deposits():  # fetch bank transactions from bank, Insert new deposits 
             break
 
 
-def handle_deposit_confirmation(*, deposit):  # update confirmation status of deposit, increase user balance or create new user if they don't already exist
+async def handle_deposit_confirmation(*, deposit):  # update confirmation status of deposit, increase user balance or create new user if they don't already exist
 
     DEPOSITS.update_one(
         {'_id': deposit['_id']},
@@ -101,8 +101,9 @@ def handle_deposit_confirmation(*, deposit):  # update confirmation status of de
         'account_number': deposit['sender']
     })
     if registration:
-        handle_registration(registration=registration)
+        await handle_registration(registration=registration)
     else:
+
         USERS.update_one(
             {'account_number': deposit['sender']},
             {
@@ -111,9 +112,23 @@ def handle_deposit_confirmation(*, deposit):  # update confirmation status of de
                 }
             }
         )
+        existing_user = USERS.find_one({'account_number': deposit['sender']})  # Get all the items values from a table as dictionary
+
+        if existing_user:
+            existing_user_acc_num = existing_user["account_number"]
+            existing_user_acc_bal = existing_user["balance"]
+            channel = client.get_channel(980717636491030599)  # general channel id
+            username = client.get_user(existing_user['_id'])
+
+            embed = discord.Embed(title="Ethereum Successfully Deposited!",
+                                  description=f"You have successfully deposited **{deposit['amount']}** Ethereum into **{round(existing_user_acc_num, 4)}** account. Your new account balance is **{existing_user_acc_bal}**. You can check your balance at anytime using **!balance** command.",
+                                  color=0x00ff00)
+            embed.set_author(name=f"User Info - {username}"),
+            embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
+            await channel.send(embed=embed)
 
 
-def handle_registration(*, registration):  # ensure account number is not already registered, create a new user or update the account number of existing user
+async def handle_registration(*, registration):  # ensure account number is not already registered, create a new user or update the account number of existing user
 
     discord_user_id = registration['_id']
     account_number_registered = bool(USERS.find_one({'account_number': registration['account_number']}))
@@ -121,6 +136,7 @@ def handle_registration(*, registration):  # ensure account number is not alread
         existing_user = USERS.find_one({'_id': discord_user_id})
 
         if existing_user:
+
             USERS.update_one(
                 {'_id': discord_user_id},
                 {
@@ -131,10 +147,16 @@ def handle_registration(*, registration):  # ensure account number is not alread
             )
             REGISTRATIONS.delete_one({'_id': discord_user_id})
         else:
+            channel = client.get_channel(980717636491030599)  # general channel id
+            username = client.get_user(discord_user_id)
             results = USERS.insert_one({'_id': discord_user_id,
                              'account_number': registration['account_number'],
                              'balance': 0
                                         })
+            embed = discord.Embed(title="Successfully Registered!", description=f"You have successfully linked your account with **Helper Bot**. You can verify using **!verify** command.", color=0x00ff00)
+            embed.set_author(name=f"User Info - {username}"),
+            embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
+            await channel.send(embed=embed)
 
             REGISTRATIONS.delete_one({'_id': discord_user_id})
 
@@ -172,7 +194,7 @@ def increment_confirmation_checks(*, deposit):  # increments the number of confi
 @tasks.loop(seconds=5.0)
 async def poll_blockchain():  # poll blockchain for new transactions/deposits sent to the bot account, ONLY accept confirmed transactions
     check_deposits()
-    check_confirmations()
+    await check_confirmations()
 
 
 badwords = ['bad', 'words', 'here']
@@ -942,7 +964,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             channel=channel,
                             username=username,
                             title="Error!",
-                            description=f"Sorry! **GMicrosoft Flight Simulator 2020** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                            description=f"Sorry! **Microsoft Flight Simulator 2020** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
                         )
                         return
 
@@ -1739,6 +1761,6 @@ REGISTRATION
 client.run('my_secret')"""
 # my_secret = os.environ['ton']
 
-keep_alive()
+# keep_alive()
 secret = os.environ.get('my_secret')
 client.run(secret)
