@@ -2,7 +2,7 @@ import discord, requests, json, os
 from discord.ext import commands, tasks
 from keep_alive import keep_alive
 from utils.protocols import is_valid_account_number  # importing the method for checking if an account number is valid
-from utils.discord import send_embed, roles_send_embed, games_send_embed, send_game_verification_message, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
+from utils.discord import send_embed, roles_send_embed, games_send_embed, games_null_keys_embed, send_game_verification_message, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
 from pymongo import MongoClient  # importing the module to get a connection to database mongo
 from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
 from utils.network import fetch, make_api_url  # to fetch url and convert it into python object
@@ -174,11 +174,6 @@ async def poll_blockchain():  # poll blockchain for new transactions/deposits se
     check_deposits()
     check_confirmations()
 
-@client.event
-async def on_ready():
-    print("I'm back online")
-    poll_blockchain.start()
-
 
 badwords = ['bad', 'words', 'here']
 # emojis dictionary
@@ -307,6 +302,82 @@ async def on_raw_reaction_remove(payload):  # Remove custom roles
     if payload.message_id != target_message_id:
         return
 """
+
+
+@tasks.loop(seconds=5.0)
+async def update_game_message():  # To update game keys count.
+    """if user==None:
+        user = ctx.author
+    user_id = ctx.message.author.id"""
+
+    """existing_user = USERS.find_one({'_id': user_id})  # Get all the items values from a table as dictionary
+
+    if existing_user:
+        existing_user_acc_num = existing_user["account_number"]
+        existing_user_acc_bal = existing_user["balance"]"""
+
+    channel = client.get_channel(981859588011876432)
+    message = await channel.fetch_message(982844152054169631)
+    embed = discord.Embed(
+        title=f"Buy Games",
+        description=f"To buy Game keys to redeem your favorite game, please react with appropriate emoji(s) below:",
+        color=discord.Colour.blurple()
+    )
+    embed.set_thumbnail(
+        url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
+
+    game_keys = GAMES.find_one({'game': 'gtav'})
+    count = game_keys['count']
+    embed.add_field(name='Grand Theft Auto V',
+                    value=f"<:gtav:981862365207363645>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+    game_keys = GAMES.find_one({'game': 'rdr2'})
+    count = game_keys['count']
+    embed.add_field(name='Red Dead Redemption 2',
+                    value=f"<:rdr2:981862366008463402>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+    game_keys = GAMES.find_one({'game': 'bf42'})
+    count = game_keys['count']
+    embed.add_field(name='Battlefield 2042',
+                    value=f"<:bf42:981862364943101952>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+    game_keys = GAMES.find_one({'game': 'fh4'})
+    count = game_keys['count']
+    embed.add_field(name='Forza Horizon 4',
+                    value=f"<:fh4:981862364158787605>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+    game_keys = GAMES.find_one({'game': 'mw'})
+    count = game_keys['count']
+    embed.add_field(name='Call of Duty: Modern Warfare',
+                    value=f"<:mw:981862363873562624>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+    game_keys = GAMES.find_one({'game': 'vanguard'})
+    count = game_keys['count']
+    embed.add_field(name='Call of Duty: Vanguard',
+                    value=f"<:vanguard:981862537748426762>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+    game_keys = GAMES.find_one({'game': 'msfs2020'})
+    count = game_keys['count']
+    embed.add_field(name='Microsoft Flight Simulator 2020',
+                    value=f"<:msfs2020:981862368013336576>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+    game_keys = GAMES.find_one({'game': 'halo'})
+    count = game_keys['count']
+    embed.add_field(name='Halo Infinite',
+                    value=f"<:halo_infinite:981862364846641152>  |  `{count} key(s) left`  |  `0.0170 ethers per item`",
+                    inline=False
+                    )
+
+    #msgg = await channel.send(embed=embed)
+
+    await message.edit(embed=embed)
 
 
 @client.event
@@ -492,7 +563,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                 title="Error! User not found.",
                 description=f"The discord account that you are trying to make a purchase from is not linked with the Helper Bot. Please use **!crypto help** command to link your discord account with the Helper Bot."
             )
-    elif payload.message_id == 981859721852100679:
+    elif payload.message_id == 982844152054169631:
         guild = client.get_guild(payload.guild_id)  # Get server information/id
         existing_user = USERS.find_one({'_id': payload.user_id})  # Get all the items values from a table as dictionary
         channel = client.get_channel(981856169977085962)
@@ -503,6 +574,17 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
             if payload.emoji.name == 'gtav':
                 if existing_user_acc_bal > 0.0170:
 
+                    game_keys = GAMES.find_one({'game': 'gtav'})
+                    count = game_keys['count']
+                    if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **Grand Theft Auto V** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
+                        return
                     USERS.update_one(
                         {'account_number': existing_user["account_number"]},
                         {
@@ -511,10 +593,6 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             }
                         }
                     )
-                    game_keys = GAMES.find_one({'game': 'gtav'})
-                    count = game_keys['count']
-                    if count < 1:
-                        return
                     key_new = "key" + str(count)
                     key_value = game_keys[key_new]
                     GAMES.update_one(
@@ -540,7 +618,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         payload=payload,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased **Grand Theft Auto V**. Key => **{game_keys[key_new]}**"
+                        description=f"You have successfully purchased **Grand Theft Auto V**. Game Key => **{game_keys[key_new]}**"
                     )
                 else:
                     await roles_send_embed(
@@ -565,6 +643,17 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
             if payload.emoji.name == 'rdr2':
                 if existing_user_acc_bal > 0.0170:
 
+                    game_keys = GAMES.find_one({'game': 'rdr2'})
+                    count = game_keys['count']
+                    if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **Red Dead Redemption 2** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
+                        return
                     USERS.update_one(
                         {'account_number': existing_user["account_number"]},
                         {
@@ -573,10 +662,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             }
                         }
                     )
-                    game_keys = GAMES.find_one({'game': 'rdr2'})
-                    count = game_keys['count']
-                    if count < 1:
-                        return
+
                     key_new = "key" + str(count)
                     key_value = game_keys[key_new]
                     GAMES.update_one(
@@ -602,7 +688,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         payload=payload,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased **Red Dead Redemption 2**. Key => **{game_keys[key_new]}**"
+                        description=f"You have successfully purchased **Red Dead Redemption 2**. Game Key => **{game_keys[key_new]}**"
                     )
                 else:
                     await roles_send_embed(
@@ -612,10 +698,20 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         title="Error!",
                         description=f"Not enough balance in your account. **0.0170** ethers needed for the **Red Dead Redemption 2** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
-
-            if payload.emoji.name == 'fh4':
+            if payload.emoji.name == 'bf42':
                 if existing_user_acc_bal > 0.0170:
 
+                    game_keys = GAMES.find_one({'game': 'bf42'})
+                    count = game_keys['count']
+                    if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **Battlefield 2042** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
+                        return
                     USERS.update_one(
                         {'account_number': existing_user["account_number"]},
                         {
@@ -624,10 +720,65 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             }
                         }
                     )
+
+                    key_new = "key" + str(count)
+                    key_value = game_keys[key_new]
+                    GAMES.update_one(
+                        {'game': game_keys['game']},
+                        {
+                            '$inc': {
+                                'count': -1
+                            },
+                            '$unset': {
+                                key_new: ""
+                            }
+                        }
+                    )
+                    existing_user_new_acc_bal = existing_user["balance"] - 0.0170
+                    await games_send_embed(
+                        payload=payload,
+                        channel=channel,
+                        username=username,
+                        title="Success!",
+                        description=f"You have successfully purchased **Battlefield 2042**. One game key has been sent to your inbox(DM). Your current balance is **{round(existing_user_new_acc_bal, 4)}** ethers."
+                    )
+                    await send_game_verification_message(
+                        payload=payload,
+                        username=username,
+                        title="Success!",
+                        description=f"You have successfully purchased **Battlefield 2042**. Game Key => **{game_keys[key_new]}**"
+                    )
+                else:
+                    await roles_send_embed(
+                        payload=payload,
+                        channel=channel,
+                        username=username,
+                        title="Error!",
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Battlefield 2042** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                    )
+            if payload.emoji.name == 'fh4':
+                if existing_user_acc_bal > 0.0170:
+
                     game_keys = GAMES.find_one({'game': 'fh4'})
                     count = game_keys['count']
                     if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **Forza Horizon 4** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
                         return
+                    USERS.update_one(
+                        {'account_number': existing_user["account_number"]},
+                        {
+                            '$inc': {
+                                'balance': -0.0170
+                            }
+                        }
+                    )
+
                     key_new = "key" + str(count)
                     key_value = game_keys[key_new]
                     GAMES.update_one(
@@ -653,7 +804,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         payload=payload,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased **Forza Horizon 4**. Key => **{game_keys[key_new]}**"
+                        description=f"You have successfully purchased **Forza Horizon 4**. Game Key => **{game_keys[key_new]}**"
                     )
                 else:
                     await roles_send_embed(
@@ -666,6 +817,17 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
             if payload.emoji.name == 'mw':
                 if existing_user_acc_bal > 0.0170:
 
+                    game_keys = GAMES.find_one({'game': 'mw'})
+                    count = game_keys['count']
+                    if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **Call of Duty: Modern Warfare** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
+                        return
                     USERS.update_one(
                         {'account_number': existing_user["account_number"]},
                         {
@@ -674,10 +836,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             }
                         }
                     )
-                    game_keys = GAMES.find_one({'game': 'mw'})
-                    count = game_keys['count']
-                    if count < 1:
-                        return
+
                     key_new = "key" + str(count)
                     key_value = game_keys[key_new]
                     GAMES.update_one(
@@ -703,7 +862,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         payload=payload,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased **Call of Duty: Modern Warfare**. Key => **{game_keys[key_new]}**"
+                        description=f"You have successfully purchased **Call of Duty: Modern Warfare**. Game Key => **{game_keys[key_new]}**"
                     )
                 else:
                     await roles_send_embed(
@@ -716,6 +875,18 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
             if payload.emoji.name == 'vanguard':
                 if existing_user_acc_bal > 0.0170:
 
+                    game_keys = GAMES.find_one({'game': 'vanguard'})
+                    count = game_keys['count']
+                    if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **Call of Duty: Vanguard** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
+                        return
+
                     USERS.update_one(
                         {'account_number': existing_user["account_number"]},
                         {
@@ -724,10 +895,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             }
                         }
                     )
-                    game_keys = GAMES.find_one({'game': 'vanguard'})
-                    count = game_keys['count']
-                    if count < 1:
-                        return
+
                     key_new = "key" + str(count)
                     key_value = game_keys[key_new]
                     GAMES.update_one(
@@ -753,7 +921,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         payload=payload,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased **Call of Duty: Vanguard**. Key => **{game_keys[key_new]}**"
+                        description=f"You have successfully purchased **Call of Duty: Vanguard**. Game Key => **{game_keys[key_new]}**"
                     )
                 else:
                     await roles_send_embed(
@@ -766,6 +934,18 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
             if payload.emoji.name == 'msfs2020':
                 if existing_user_acc_bal > 0.0170:
 
+                    game_keys = GAMES.find_one({'game': 'msfs2020'})
+                    count = game_keys['count']
+                    if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **GMicrosoft Flight Simulator 2020** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
+                        return
+
                     USERS.update_one(
                         {'account_number': existing_user["account_number"]},
                         {
@@ -774,10 +954,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             }
                         }
                     )
-                    game_keys = GAMES.find_one({'game': 'msfs2020'})
-                    count = game_keys['count']
-                    if count < 1:
-                        return
+
                     key_new = "key" + str(count)
                     key_value = game_keys[key_new]
                     GAMES.update_one(
@@ -803,7 +980,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         payload=payload,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased **Microsoft Flight Simulator 2020**. Key => **{game_keys[key_new]}**"
+                        description=f"You have successfully purchased **Microsoft Flight Simulator 2020**. Game Key => **{game_keys[key_new]}**"
                     )
                 else:
                     await roles_send_embed(
@@ -816,6 +993,18 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
             if payload.emoji.name == 'halo_infinite':
                 if existing_user_acc_bal > 0.0170:
 
+                    game_keys = GAMES.find_one({'game': 'halo_infinite'})
+                    count = game_keys['count']
+                    if count < 1:
+                        await games_null_keys_embed(
+                            payload=payload,
+                            channel=channel,
+                            username=username,
+                            title="Error!",
+                            description=f"Sorry! **Halo Infinite** keys are currently out of stock. Please wait until game keys are in stock again. Thanks!"
+                        )
+                        return
+
                     USERS.update_one(
                         {'account_number': existing_user["account_number"]},
                         {
@@ -824,10 +1013,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                             }
                         }
                     )
-                    game_keys = GAMES.find_one({'game': 'halo_infinite'})
-                    count = game_keys['count']
-                    if count < 1:
-                        return
+
                     key_new = "key" + str(count)
                     key_value = game_keys[key_new]
                     GAMES.update_one(
@@ -847,13 +1033,13 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased ** Halo Infinite**. One game key has been sent to your inbox(DM). Your current balance is **{round(existing_user_new_acc_bal, 4)}** ethers."
+                        description=f"You have successfully purchased **Halo Infinite**. One game key has been sent to your inbox(DM). Your current balance is **{round(existing_user_new_acc_bal, 4)}** ethers."
                     )
                     await send_game_verification_message(
                         payload=payload,
                         username=username,
                         title="Success!",
-                        description=f"You have successfully purchased **Halo Infinite**. Key => **{game_keys[key_new]}**"
+                        description=f"You have successfully purchased **Halo Infinite**. Game Key => **{game_keys[key_new]}**"
                     )
                 else:
                     await roles_send_embed(
@@ -1521,10 +1707,16 @@ async def register(ctx, account_number):  # validation of account number
 
 
 
-
 # Crypto Integration I.E., Validation etc. -> END
 
 # Crypto Integration I.E., Registration Logic etc. -> STARTING
+
+
+@client.event
+async def on_ready():
+    print("I'm back online")
+    poll_blockchain.start()
+    update_game_message.start()
 
 """
 REGISTRATION

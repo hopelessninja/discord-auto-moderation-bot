@@ -72,6 +72,28 @@ async def games_send_embed(*, payload, channel, username, title, description):
     # await guild.get_channel(payload.channel_id).send("I couldn't find that role...")
     await channel.send(embed=embed)
 
+async def games_null_keys_embed(*, payload, channel, username, title, description):
+    """
+
+    Send a simple embed with a title and description
+    """
+    user: discord.member = None
+
+    if user == None:
+        #user = client.get_user(payload.user_id)
+        user = payload.user_id
+
+    embed = discord.Embed(
+        title=title,
+        description=description,
+        color=discord.Colour.red(),
+    )
+    embed.set_author(name=f"User Info - {username}"),
+    embed.set_thumbnail(
+        url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
+    # await guild.get_channel(payload.channel_id).send("I couldn't find that role...")
+    await channel.send(embed=embed)
+
 
 async def send_game_verification_message(*, payload, username, title, description):
     """
@@ -94,6 +116,7 @@ async def send_game_verification_message(*, payload, username, title, descriptio
         url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
     # await guild.get_channel(payload.channel_id).send("I couldn't find that role...")
     await username.send(embed=embed)
+
 
 
 async def send_verification_message(*, ctx, registration_account_number):  # Send verification message DM
@@ -131,3 +154,4 @@ async def send_verification_message(*, ctx, registration_account_number):  # Sen
     )
 
     await ctx.author.send(embed=embed)
+
