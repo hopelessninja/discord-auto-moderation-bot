@@ -121,11 +121,12 @@ async def handle_deposit_confirmation(*, deposit):  # update confirmation status
             username = client.get_user(existing_user['_id'])
 
             embed = discord.Embed(title="Ethereum Successfully Deposited!",
-                                  description=f"You have successfully deposited **{deposit['amount']}** Ethereum into **{round(existing_user_acc_num, 4)}** account. Your new account balance is **{existing_user_acc_bal}**. You can check your balance at anytime using **!balance** command.",
+                                  description=f"You have successfully deposited **{deposit['amount']}** Ethereum into **{(existing_user_acc_num)}** account. Your new account balance is **{round(existing_user_acc_bal, 4)}**. You can check your balance anytime using **!balance** command.",
                                   color=0x00ff00)
             embed.set_author(name=f"User Info - {username}"),
             embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif')
             await channel.send(embed=embed)
+
 
 
 async def handle_registration(*, registration):  # ensure account number is not already registered, create a new user or update the account number of existing user
