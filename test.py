@@ -1,7 +1,7 @@
 import discord, os
 from web3 import Web3
 from discord.ext import commands, tasks
-from config.settings import BOT_ACCOUNT_NUMBER
+from config.settings import BOT_ACCOUNT_NUMBER, PRIV_KEY
 
 intents = discord.Intents.default()
 intents.members = True  # member intents
@@ -91,7 +91,7 @@ async def send(ctx, user:discord.member=None):  # shows current balance of the l
 async def unlink(ctx, user:discord.member=None):  # shows current balance of the linked account
     w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/9f6251b770f249f1ba32f664cc80d15f"))
     friends_address = "0x78cDb43c038e505109aFD69C302A3542f6a75324"
-    priv_key = os.environ.get('PRV_KEY')
+    privv_key = os.environ.get('PRV_KEY')
 
     #priv_key = 0xecd52e8574d1ad5a081d32ef33072f42705c15ac93f9debdc39ba652a42b91de
     sender_address = Web3.toChecksumAddress(BOT_ACCOUNT_NUMBER)
@@ -107,7 +107,7 @@ async def unlink(ctx, user:discord.member=None):  # shows current balance of the
         'gasPrice': w3.toWei(40, 'gwei')
     }
 
-    signed_tx = w3.eth.account.signTransaction(tx, priv_key)
+    signed_tx = w3.eth.account.signTransaction(tx, PRIV_KEY)
 
     tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
     print(nonce)

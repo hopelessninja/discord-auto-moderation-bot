@@ -1,20 +1,20 @@
 import discord, requests, json, os
+from dotenv import load_dotenv
 from discord.ext import commands, tasks
 from keep_alive import keep_alive
 from utils.protocols import is_valid_account_number  # importing the method for checking if an account number is valid
 from utils.discord import send_embed, roles_send_embed, games_send_embed, games_null_keys_embed, send_game_verification_message, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
 from pymongo import MongoClient  # importing the module to get a connection to database mongo
-from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
+from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, DISCORD_TOKEN, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
 from utils.network import fetch, make_api_url  # to fetch url and convert it into python object
 import pymongo
 from pymongo.errors import DuplicateKeyError
 
-
+load_dotenv()
 # enable intents(to get info about members)
 intents = discord.Intents.default()
 intents.members = True  # member intents
 
-data2 = "Okay" 
 client = commands.Bot(command_prefix='!', intents=intents)
 client.remove_command('help')
 
@@ -1749,6 +1749,7 @@ REGISTRATION
 """
 
 
+
 '''
 @client.event
 # async def on_profanities(message, word):
@@ -1763,5 +1764,5 @@ client.run('my_secret')"""
 # my_secret = os.environ['ton']
 
 # keep_alive()
-secret = os.environ.get('my_secret')
-client.run(secret)
+#secret = os.environ.get('my_secret')
+client.run(DISCORD_TOKEN)
