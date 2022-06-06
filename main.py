@@ -1,11 +1,12 @@
 import discord, requests, json, os
 from dotenv import load_dotenv
+from web3 import Web3
 from discord.ext import commands, tasks
 from keep_alive import keep_alive
 from utils.protocols import is_valid_account_number  # importing the method for checking if an account number is valid
 from utils.discord import send_embed, roles_send_embed, games_send_embed, games_null_keys_embed, send_game_verification_message, send_verification_message  # importing the method for sending the embed to show an error message, importing random  number generator
 from pymongo import MongoClient  # importing the module to get a connection to database mongo
-from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, DISCORD_TOKEN, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
+from config.settings import MONGO_DB_NAME, MONGO_CLIENT_ADDRESS, DISCORD_TOKEN, MONGO_HOST, MONGO_PORT, BANK_IP, BANK_PROTOCOL, BOT_ACCOUNT_NUMBER, PRIV_KEY, MAXIMUM_CONFIRMATION_CHECKS, ETHER_VALUE  # importing database host and port address and name and bank detials
 from utils.network import fetch, make_api_url  # to fetch url and convert it into python object
 import pymongo
 from pymongo.errors import DuplicateKeyError
@@ -1662,6 +1663,64 @@ async def balance(ctx, user:discord.member=None):  # shows current balance of th
         embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
 
         await ctx.send(embed=embed)
+
+
+@client.command()
+async def unlink(ctx, user:discord.member=None):  # unlinks a registered user account from helper bot
+
+    if user==None:
+        user = ctx.author
+    user_id = ctx.message.author.id
+
+    existing_user = USERS.find_one({'_id': user_id})  # Get all the items values from a table as dictionary
+
+    if existing_user:
+        existing_user_acc_num = existing_user["account_number"]
+        existing_user_acc_bal = existing_user["balance"]
+
+        w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/9f6251b770f249f1ba32f664cc80d15f"))
+        friends_address = existing_user_acc_num
+        # privv_key = os.environ.get('PRV_KEY')
+
+        # priv_key = 0xecd52e8574d1ad5a081d32ef33072f42705c15ac93f9debdc39ba652a42b91de
+        sender_address = Web3.toChecksumAddress(BOT_ACCOUNT_NUMBER)
+        receiver_address = Web3.toChecksumAddress(friends_address)
+
+        nonce = w3.eth.getTransactionCount(sender_address)
+
+        tx = {
+            'nonce': nonce,
+            'to': receiver_address,
+            'value': w3.toWei(existing_user_acc_bal, 'ether'),
+            'gas': 21000,
+            'gasPrice': w3.toWei(40, 'gwei')
+        }
+
+        signed_tx = w3.eth.account.signTransaction(tx, PRIV_KEY)
+
+        tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+
+        if tx_hash:
+            USERS.delete_one({'account_number': existing_user_acc_num})
+
+            await send_embed(
+                ctx=ctx,
+                title="Successfully Unlinked!",
+                description=f"You have successfully unlinked your account from Helper Bot. Your remaining account balance**({round(existing_user_acc_bal, 4)}**) has been deposited back into your account number: **{existing_user_acc_num}** by the Helper Bot."
+            )
+        else:
+            await send_embed(
+                ctx=ctx,
+                title="Error!",
+                description=f"An unknown error occured on our side. Don't worry though! It's not your fault. It will be fixed soon."
+            )
+
+
+
+
+
+
+
 # CUSTOM COMMANDS/HELP AND EMBEDS I.E., Making custom commands,help commands etc. -> END
 
 # Crypto Integration I.E., Registration and validation etc. -> STARTING
@@ -1727,6 +1786,8 @@ async def register(ctx, account_number):  # validation of account number
         ctx=ctx,
         registration_account_number=account_number
     )  # send verification message
+
+
 
 
 
