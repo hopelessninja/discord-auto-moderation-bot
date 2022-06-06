@@ -1,4 +1,5 @@
 from requests import get
+import json
 from config.settings import BASE_URL, API_KEY
 
 def fetch(*, url, headers):

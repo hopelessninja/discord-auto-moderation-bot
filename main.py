@@ -70,22 +70,23 @@ def check_deposits():  # fetch bank transactions from bank, Insert new deposits 
 
     next_url = make_api_url("account", "txlist", BOT_ACCOUNT_NUMBER, sort="desc", startblock=0, endblock=99999999, page=1, offset=10000)
     data = fetch(url=next_url, headers={})
-
+    print(next_url)
     bank_transactions = data['result']
 
-    for bank_transactions in bank_transactions:
-        try:
-            DEPOSITS.insert_one({
-                '_id': bank_transactions['hash'],
-                'blockNumber': bank_transactions['blockNumber'],
-                'signature_hash': bank_transactions['hash'],
-                'amount': int(bank_transactions['value']) / ETHER_VALUE,
-                'is_confirmed': False,
-                'sender': bank_transactions['from'],
-                'to': bank_transactions['to']
-            })
-        except DuplicateKeyError:
-            break
+    if bank_transactions:
+      for bank_transactions in bank_transactions:
+          try:
+              DEPOSITS.insert_one({
+                  '_id': bank_transactions['hash'],
+                  'blockNumber': bank_transactions['blockNumber'],
+                  'signature_hash': bank_transactions['hash'],
+                  'amount': int(bank_transactions['value']) / ETHER_VALUE,
+                  'is_confirmed': False,
+                  'sender': bank_transactions['from'],
+                  'to': bank_transactions['to']
+              })
+          except DuplicateKeyError:
+              break
 
 
 async def handle_deposit_confirmation(*, deposit):  # update confirmation status of deposit, increase user balance or create new user if they don't already exist
@@ -328,7 +329,7 @@ async def on_raw_reaction_remove(payload):  # Remove custom roles
 """
 
 
-@tasks.loop(seconds=5.0)
+@tasks.loop(seconds=2.0)
 async def update_game_message():  # To update game keys count.
     """if user==None:
         user = ctx.author
