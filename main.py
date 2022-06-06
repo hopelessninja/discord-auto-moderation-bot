@@ -70,7 +70,6 @@ def check_deposits():  # fetch bank transactions from bank, Insert new deposits 
 
     next_url = make_api_url("account", "txlist", BOT_ACCOUNT_NUMBER, sort="desc", startblock=0, endblock=99999999, page=1, offset=10000)
     data = fetch(url=next_url, headers={})
-    print(next_url)
     bank_transactions = data['result']
 
     if bank_transactions:
