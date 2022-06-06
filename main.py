@@ -650,7 +650,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Grand Theft Auto V** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Grand Theft Auto V** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
                     """embed = discord.Embed(
                         title="error",
@@ -720,7 +720,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Red Dead Redemption 2** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Red Dead Redemption 2** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
             if payload.emoji.name == 'bf42':
                 if existing_user_acc_bal > 0.0170:
@@ -778,7 +778,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Battlefield 2042** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Battlefield 2042** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
             if payload.emoji.name == 'fh4':
                 if existing_user_acc_bal > 0.0170:
@@ -836,7 +836,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Forza Horizon 4** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Forza Horizon 4** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
             if payload.emoji.name == 'mw':
                 if existing_user_acc_bal > 0.0170:
@@ -894,7 +894,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Call of Duty: Modern Warfare** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Call of Duty: Modern Warfare** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
             if payload.emoji.name == 'vanguard':
                 if existing_user_acc_bal > 0.0170:
@@ -953,7 +953,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Call of Duty: Vanguard** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Call of Duty: Vanguard** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
             if payload.emoji.name == 'msfs2020':
                 if existing_user_acc_bal > 0.0170:
@@ -1012,7 +1012,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Microsoft Flight Simulator 2020** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the **Microsoft Flight Simulator 2020** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
             if payload.emoji.name == 'halo_infinite':
                 if existing_user_acc_bal > 0.0170:
@@ -1071,7 +1071,7 @@ async def on_raw_reaction_add(payload):  # Add custom, premium roles and buy gam
                         channel=channel,
                         username=username,
                         title="Error!",
-                        description=f"Not enough balance in your account. **0.0170** ethers needed for the ** Halo Infinite** role. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
+                        description=f"Not enough balance in your account. **0.0170** ethers needed for the ** Halo Infinite** game. Your balance is **{round(existing_user_acc_bal, 4)}** ethers."
                     )
     elif payload.message_id == 980723247748374548:
         guild = client.get_guild(payload.guild_id)  # Get server information/id
@@ -1276,6 +1276,11 @@ async def mod_commands(ctx, user: discord.member = None):  # sends list of comma
     embed.add_field(
         name='!remove',
         value='Removes number of messages that moderator or server owner wants to.(Takes an integer as an argument.)',
+        inline=True
+    )
+    embed.add_field(
+        name='!addgame',
+        value='Adds another game key in the Helper Bot database which is automatically reflected in the #buy-games channel. (Takes two arguments, one for game name and second for the said game key.)',
         inline=True
     )
 
@@ -1536,6 +1541,12 @@ async def crypto_help(ctx, user:discord.member=None):  # Show commands related t
         value='Use this command to verify if your registration process is completed and your discord account is successfully linked to the Helper Bot.',
         inline=True
     )
+    embed.add_field(
+        name='!unlink',
+        value='Use this command to unlink your crypto account from Helper Bot.',
+        inline=True
+    )
+
     await ctx.send(embed=embed)
 
 
@@ -1696,7 +1707,7 @@ async def unlink(ctx, user:discord.member=None):  # unlinks a registered user ac
             'gasPrice': w3.toWei(40, 'gwei')
         }
 
-        signed_tx = w3.eth.account.signTransaction(tx, PRIV_KEY)
+        signed_tx = w3.eth.account.signTransaction(tx, 0xecd52e8574d1ad5a081d32ef33072f42705c15ac93f9debdc39ba652a42b91de)
 
         tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
 
@@ -1714,11 +1725,6 @@ async def unlink(ctx, user:discord.member=None):  # unlinks a registered user ac
                 title="Error!",
                 description=f"An unknown error occured on our side. Don't worry though! It's not your fault. It will be fixed soon."
             )
-
-
-
-
-
 
 
 # CUSTOM COMMANDS/HELP AND EMBEDS I.E., Making custom commands,help commands etc. -> END
@@ -1788,9 +1794,6 @@ async def register(ctx, account_number):  # validation of account number
     )  # send verification message
 
 
-
-
-
 # Crypto Integration I.E., Validation etc. -> END
 
 # Crypto Integration I.E., Registration Logic etc. -> STARTING
@@ -1824,6 +1827,6 @@ REGISTRATION
 client.run('my_secret')"""
 # my_secret = os.environ['ton']
 
-# keep_alive()
+keep_alive()
 #secret = os.environ.get('my_secret')
 client.run(DISCORD_TOKEN)
