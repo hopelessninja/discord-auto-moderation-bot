@@ -1156,39 +1156,43 @@ async def on_raw_reaction_add(payload):  # Buy games
 @client.command()
 async def addword(ctx, word):  # to add more bad words to the black list dictionary(in json file)
     roles = []
-    for role in ctx.author.roles:
-        roles.append(role.name)
-    if "Mod" in roles or ctx.author is ctx.guild.owner:  # checks if command writer has mod role or is a server owner
-        with open("numbers.json") as json_file:
-            keys = "number"
-            data = json.load(json_file)
-            number_c = data['number']
-            data.update({keys: number_c + 1})
-            # print(data)
-            j = json.dumps(data)
-            with open('numbers.json', 'w') as f:
-                f.write(j)
-                f.close()
-            next_num = number_c + 1
-
-        with open("black list record.json") as json_file:
-            keys = "word"
-            data = json.load(json_file)
-            data.update({keys + str(next_num): word})
-            # print(data)
-            """temp = data["blacklist"]
-            y = {keys: word}
-            temp.append(y)
-            write_json(data)"""
-            j = json.dumps(data)
-            with open('black list record.json', 'w') as f:
-                f.write(j)
-                f.close()
-        await ctx.message.channel.send("|| " + word + " || has been added to the filter.")
-        await ctx.message.delete()
+    if word is None:
+        await ctx.message.channel.send("This command requires a single word argument.")
+        return
     else:
-        await ctx.message.channel.send("This is a **moderator-only** command.")
-        await ctx.message.delete()
+        for role in ctx.author.roles:
+            roles.append(role.name)
+        if "Mod" in roles or ctx.author is ctx.guild.owner:  # checks if command writer has mod role or is a server owner
+            with open("numbers.json") as json_file:
+                keys = "number"
+                data = json.load(json_file)
+                number_c = data['number']
+                data.update({keys: number_c + 1})
+                # print(data)
+                j = json.dumps(data)
+                with open('numbers.json', 'w') as f:
+                    f.write(j)
+                    f.close()
+                next_num = number_c + 1
+
+            with open("black list record.json") as json_file:
+                keys = "word"
+                data = json.load(json_file)
+                data.update({keys + str(next_num): word})
+                # print(data)
+                """temp = data["blacklist"]
+                y = {keys: word}
+                temp.append(y)
+                write_json(data)"""
+                j = json.dumps(data)
+                with open('black list record.json', 'w') as f:
+                    f.write(j)
+                    f.close()
+            await ctx.message.channel.send("|| " + word + " || has been added to the filter.")
+            await ctx.message.delete()
+        else:
+            await ctx.message.channel.send("This is a **moderator-only** command.")
+            await ctx.message.delete()
 
 
 @client.command()
