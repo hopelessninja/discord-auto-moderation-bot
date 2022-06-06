@@ -1254,7 +1254,7 @@ async def mod_commands(ctx, user: discord.member = None):  # sends list of comma
     )
 
     embed.set_author(name=f"User Info - {user}"),
-    embed.set_thumbnail(url='hhttps://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
+    embed.set_thumbnail(url='https://media.discordapp.net/attachments/980719071739920394/981573917187657749/0c675a8e1061478d2b7b21b330093444.gif'),
     embed.set_footer(text=f'Requested by - {ctx.author}', icon_url=ctx.author.avatar_url)
 
     embed.add_field(
