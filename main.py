@@ -194,7 +194,7 @@ def increment_confirmation_checks(*, deposit):  # increments the number of confi
         }
     )
 
-@tasks.loop(seconds=5.0)
+@tasks.loop(seconds=2.0)
 async def poll_blockchain():  # poll blockchain for new transactions/deposits sent to the bot account, ONLY accept confirmed transactions
     check_deposits()
     await check_confirmations()
