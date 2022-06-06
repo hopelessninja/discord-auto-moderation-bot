@@ -1799,6 +1799,16 @@ async def register(ctx, account_number):  # validation of account number
 
 # Crypto Integration I.E., Registration Logic etc. -> STARTING
 
+@client.event #Replace 'client' with whatever neccesary
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.MissingRequiredArgument):
+        # Replace MissingRequiredArguments with your error
+
+        await send_embed(
+            ctx=ctx,
+            title="Error!",
+            description="Please pass all required argument(s)."
+        )
 
 @client.event
 async def on_ready():
