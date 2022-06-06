@@ -73,7 +73,8 @@ def check_deposits():  # fetch bank transactions from bank, Insert new deposits 
     bank_transactions = data['result']
 
     if bank_transactions:
-      for bank_transactions in bank_transactions:
+
+        for bank_transactions in bank_transactions:
           try:
               DEPOSITS.insert_one({
                   '_id': bank_transactions['hash'],
