@@ -1,5 +1,7 @@
 import discord, os
+from web3 import Web3
 from discord.ext import commands, tasks
+from config.settings import BOT_ACCOUNT_NUMBER
 
 intents = discord.Intents.default()
 intents.members = True  # member intents
@@ -84,6 +86,34 @@ async def send(ctx, user:discord.member=None):  # shows current balance of the l
     await msg.add_reaction('<:msfs2020:981862368013336576>')
     await msg.add_reaction('<:halo_infinite:981862364846641152>')
 
+
+@client.command()
+async def unlink(ctx, user:discord.member=None):  # shows current balance of the linked account
+    w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/9f6251b770f249f1ba32f664cc80d15f"))
+    friends_address = "0x78cDb43c038e505109aFD69C302A3542f6a75324"
+    priv_key = os.environ.get('PRV_KEY')
+
+    #priv_key = 0xecd52e8574d1ad5a081d32ef33072f42705c15ac93f9debdc39ba652a42b91de
+    sender_address = Web3.toChecksumAddress(BOT_ACCOUNT_NUMBER)
+    receiver_address = Web3.toChecksumAddress(friends_address)
+
+    nonce = w3.eth.getTransactionCount(sender_address)
+
+    tx = {
+        'nonce': nonce,
+        'to': receiver_address,
+        'value': w3.toWei(0.0005, 'ether'),
+        'gas': 21000,
+        'gasPrice': w3.toWei(40, 'gwei')
+    }
+
+    signed_tx = w3.eth.account.signTransaction(tx, priv_key)
+
+    tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    print(nonce)
+    print(tx_hash)
+
+
 @tasks.loop(seconds=5.0)
 async def update_message():
     """if user==None:
@@ -164,7 +194,7 @@ async def update_message():
 @client.event
 async def on_ready():
     print("I'm back online")
-    update_message.start()
+    #update_message.start()
 
 
 
