@@ -39,7 +39,7 @@ pycryptodome==3.14.1
 pymongo==4.1.1
 pyrsistent==0.18.1
 python-dotenv==0.20.0
-pywin32==304
+pywin32==227;platform_system == "Windows"
 requests==2.27.1
 rlp==2.0.1
 setuptools==62.3.2
